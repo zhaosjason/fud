@@ -38,7 +38,11 @@ app = Flask(__name__, template_folder=tmpl_dir)
 #     DATABASEURI = "postgresql://ewu2493:foobar@<IP_OF_POSTGRE_SQL_SERVER>/postgres"
 #
 # Swap out the URI below with the URI for the database created in part 2
-DATABASEURI = "sqlite:///test.db"
+
+with open("password.txt", "r") as f:
+  passwd = f.readline()
+
+DATABASEURI = "postgresql://ss4924:" + passwd + "@104.196.175.120/postgres"
 
 
 #
