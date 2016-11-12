@@ -154,6 +154,7 @@ def menu():
   rname = cursor.fetchone()['restaurant_name']
   cursor.close()
   cursor = g.conn.execute("SELECT m.menu_item_id, m.menu_name FROM menu_items as m, served_at as s where m.menu_item_id = s.menu_item_id and s.restaurant_id=%s", rid)
+  names = []
   for result in cursor:
     names.append((result['menu_item_id'], result['menu_name']))  
   cursor.close()
