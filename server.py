@@ -179,6 +179,30 @@ def index():
   #
   return render_template("index.html", **context)
 
+
+@app.route('/restaurants')
+def index():
+  """
+  request is a special object that Flask provides to access web request information:
+
+  request.method:   "GET" or "POST"
+  request.form:     if the browser submitted a form, this contains the data in the form
+  request.args:     dictionary of URL arguments e.g., {a:1, b:2} for http://localhost?a=1&b=2
+
+  See its API: http://flask.pocoo.org/docs/0.10/api/#incoming-request-data
+  """
+  print str(request.args)
+  cursor = g.conn.execute("SELECT * FROM restaurants")
+  names = []
+  for result in cursor:
+    names.append((result['restaurant_id'], result['restaurant_name']))  
+  cursor.close()
+  context = dict(data = names)
+  return render_template("restaurants.html", **context)
+
+
+
+
 #
 # This is an example of a different path.  You can see it at
 # 
