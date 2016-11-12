@@ -181,16 +181,7 @@ def index():
 
 
 @app.route('/restaurants')
-def index():
-  """
-  request is a special object that Flask provides to access web request information:
-
-  request.method:   "GET" or "POST"
-  request.form:     if the browser submitted a form, this contains the data in the form
-  request.args:     dictionary of URL arguments e.g., {a:1, b:2} for http://localhost?a=1&b=2
-
-  See its API: http://flask.pocoo.org/docs/0.10/api/#incoming-request-data
-  """
+def restaurants():
   print str(request.args)
   cursor = g.conn.execute("SELECT * FROM restaurants")
   names = []
