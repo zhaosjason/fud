@@ -161,6 +161,23 @@ def menu():
   context = dict(data = names, rname = rname)
   return render_template("menu.html", **context)
 
+@app.route('/reviews')
+def reviews():
+  mid = request.args['mid']
+  cursor = g.conn.execute("SELECT menu_name FROM menu_items as m where m.menu_item_id=%s", mid)
+  if cursor.rowcount == 0:
+    cursor.close()
+    return redirect('/restaurants')
+  mname = cursor.fetchone()['menu_name']
+  cursor.close()
+  cursor = g.conn.execute("SELECT m.menu_item_id, m.menu_name FROM menu_items as m, served_at as s where m.menu_item_id = s.menu_item_id and s.restaurant_id=%s", rid)
+  names = []
+  for result in cursor:
+    names.append((result['menu_item_id'], result['menu_name']))
+  cursor.close()
+  context = dict(data = names, mname = mname)
+  return render_template("menu.html", **context)
+
 
 
 
