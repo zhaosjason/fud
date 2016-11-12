@@ -194,6 +194,21 @@ def another():
   return render_template("anotherfile.html")
 
 
+@app.route('/search')
+def search():
+  cuisines = []
+  cursor = g.conn.execute("SELECT cuisine_name FROM cuisine")
+
+  for result in cursor:
+    cuisines.append(result['cuisine_name'])  
+
+  cursor.close()
+
+  context = dict(data = cuisines)
+  return render_template("search.html", **context)
+
+
+
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
 def add():
