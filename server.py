@@ -179,7 +179,7 @@ def reviews():
   avg_rating = "{0:.2f}".format(cursor.fetchone()[0])
   cursor.close()
   context = dict(data = names, mname = mname, avg_rating = avg_rating)
-  return render_template("menu.html", **context)
+  return render_template("reviews.html", **context)
 
 
 
