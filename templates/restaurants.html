@@ -11,7 +11,7 @@
   <h1>List of Restaurants</h1>
   <div>
     {% for n in data %}
-    <div><a href="/menu.html?rid="+{{n[0]}}>{{n[1]}}</a></div>
+    <div><a href="/menu?rid={{n[0]}}">{{n[1]}}</a></div>
     {% endfor %}
   </div>
 
