@@ -148,7 +148,7 @@ def restaurants():
 def menu():
   rid = request.args['rid']
   cursor = g.conn.execute("SELECT restaurant_name FROM restaurants as r where r.restaurant_id=%s", rid)
-  if not len(cursor):
+  if cursor.rowcount == 0:
     cursor.close()
     return redirect('/restaurants')
   rname = cursor[0][restaurant_name]
