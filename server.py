@@ -151,7 +151,7 @@ def menu():
   if cursor.rowcount == 0:
     cursor.close()
     return redirect('/restaurants')
-  rname = cursor[0][restaurant_name]
+  rname = cursor.fetchone()[restaurant_name]
   cursor.close()
   cursor = g.conn.execute("SELECT m.menu_item_id, m.menu_name FROM menu_items as m, served_at as s where m.menu_item_id = s.menu_item_id and s.restaurant_id=%s", rid)
   for result in cursor:
