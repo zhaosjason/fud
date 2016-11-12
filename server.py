@@ -146,7 +146,11 @@ def restaurants():
 
 @app.route('/menu')
 def menu():
+  if not 'rid' in request.args:
+    return redirect('/restaurants')
   rid = request.args['rid']
+  if not is_number(rid):
+    return redirect('/restaurants')
   cursor = g.conn.execute("SELECT restaurant_name FROM restaurants as r where r.restaurant_id=%s", rid)
   if cursor.rowcount == 0:
     cursor.close()
@@ -163,7 +167,11 @@ def menu():
 
 @app.route('/reviews')
 def reviews():
+  if not 'mid' in request.args:
+    return redirect('/restaurants')
   mid = request.args['mid']
+  if not is_number(mid):
+    return redirect('/restaurants')
   cursor = g.conn.execute("SELECT menu_name FROM menu_items as m where m.menu_item_id=%s", mid)
   if cursor.rowcount == 0:
     cursor.close()
@@ -181,8 +189,12 @@ def reviews():
   context = dict(data = names, mname = mname, avg_rating = avg_rating)
   return render_template("reviews.html", **context)
 
-
-
+def is_number(s):
+  try:
+    int(s)
+    return True
+  except ValueError:
+    return False
 
 #
 # This is an example of a different path.  You can see it at
