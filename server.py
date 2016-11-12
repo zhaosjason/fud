@@ -208,6 +208,39 @@ def search():
   return render_template("search.html", **context)
 
 
+@app.route('/results')
+def search():
+  zipcode = request.args["inputZip"]
+  cuisine = request.args["inputCuisine"]
+  results = [cuisine, zipcode]
+
+  cursor = g.conn.execute(
+    """
+    SELECT rests.menu_name, rests.restaurant_name, avg(r.rating) AS avg_rating, rests.restaurant_id, rests.menu_item_id
+    FROM reviews AS r, rate AS t, (
+      SELECT n.menu_item_id, n.menu_name, res.restaurant_name, res.restaurant_id
+      FROM served_at AS s, restaurants AS res, located_at AS loc, address AS a, (
+        SELECT m.menu_item_id, m.menu_name 
+        FROM menu_items AS m, belongs_to AS b 
+        WHERE b.cuisine_name = 'Noodles' AND b.menu_item_id = m.menu_item_id
+      ) AS n 
+      WHERE s.restaurant_id = res.restaurant_id AND res.restaurant_id = loc.address_id AND loc.address_id = a.address_id AND
+      a.zipcode = '58701' AND s.menu_item_id = n.menu_item_id
+    ) AS rests 
+    WHERE t.menu_item_id = rests.menu_item_id and t.review_id = r.review_id 
+    GROUP BY rests.menu_name, rests.restaurant_name, rests.restaurant_id, rests.menu_item_id
+    ORDER BY avg_rating DESC;
+    """)
+
+  for result in cursor:
+    results.append(result['cuisine_name'])
+
+  cursor.close()
+
+  context = dict(data = results)
+  return render_template("results.html", **context)
+
+
 
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
