@@ -1,0 +1,23 @@
+<html>
+  <style>
+    body{ 
+      font-size: 15pt;
+      font-family: arial;
+    }
+  </style>
+
+
+<body>
+  <h1>List of Menu Items</h1>
+  <div>{{data}}</div>
+
+  <div>
+    {% for n in data %}
+    <div>{{n[0]}} : {{n[1]}}</div>
+    {% endfor %}
+  </div>
+
+</body>
+
+
+</html>
