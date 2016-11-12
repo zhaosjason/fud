@@ -246,7 +246,7 @@ def search():
 
 
 @app.route('/results')
-def search():
+def results():
   zipcode = request.args["inputZip"]
   cuisine = request.args["inputCuisine"]
   results = [cuisine, zipcode]
