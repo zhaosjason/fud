@@ -259,19 +259,20 @@ def results():
       FROM served_at AS s, restaurants AS res, located_at AS loc, address AS a, (
         SELECT m.menu_item_id, m.menu_name 
         FROM menu_items AS m, belongs_to AS b 
-        WHERE b.cuisine_name = 'Noodles' AND b.menu_item_id = m.menu_item_id
+        WHERE b.cuisine_name = %s AND b.menu_item_id = m.menu_item_id
       ) AS n 
       WHERE s.restaurant_id = res.restaurant_id AND res.restaurant_id = loc.address_id AND loc.address_id = a.address_id AND
-      a.zipcode = '58701' AND s.menu_item_id = n.menu_item_id
+      a.zipcode = %s AND s.menu_item_id = n.menu_item_id
     ) AS rests 
     WHERE t.menu_item_id = rests.menu_item_id and t.review_id = r.review_id 
     GROUP BY rests.menu_name, rests.restaurant_name, rests.restaurant_id, rests.menu_item_id
     ORDER BY avg_rating DESC;
-    """)
+    """, cuisine, zipcode)
 
   for result in cursor:
-    result[2] = "{0:.2f}".format(result[2])
-    results.append(result)
+    temp = [result[0], result[1], result[2], result[3], result[4]]
+    temp[2] = "{0:.2f}".format(temp[2])
+    results.append(temp)
 
   cursor.close()
 
