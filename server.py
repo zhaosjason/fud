@@ -197,7 +197,7 @@ def another():
 @app.route('/search')
 def search():
   cuisines = []
-  cursor = g.conn.execute("SELECT cuisine_name FROM cuisine")
+  cursor = g.conn.execute("SELECT cuisine_name FROM cuisines")
 
   for result in cursor:
     cuisines.append(result['cuisine_name'])  
