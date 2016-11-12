@@ -1,0 +1,31 @@
+<html>
+	<style>
+		body{ 
+			font-size: 15pt;
+			font-family: arial;
+		}
+	</style>
+
+
+	<body>
+		<h1>Results for {{data[0]}} in {{data[1]}}</h1>
+		<div>
+			<table>
+				<tr>
+					<td>Food</td>
+					<td>Restaurant</td>
+					<td>Avg Rating</td>
+				</tr>
+				{% for results in data[2:] %}
+					<tr>
+						<td><a href="/reviews?mid={{results[-1]}}">results[0]</a></td>
+						<td><a href="/menu?rid={{results[-2]}}">results[1]</a></td>
+						<td>results[2]</td>
+					</tr>
+				{% endfor %}
+			</table>
+
+		</div>
+
+	</body>
+</html>

@@ -248,7 +248,8 @@ def search():
     """)
 
   for result in cursor:
-    results.append(result['cuisine_name'])
+    result[2] = "{0:.2f}".format(result[2])
+    results.append(result)
 
   cursor.close()
 
