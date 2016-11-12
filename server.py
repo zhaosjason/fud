@@ -192,6 +192,23 @@ def restaurants():
   return render_template("restaurants.html", **context)
 
 
+@app.route('/menu')
+def menu():
+  rid = request.args['rid']
+  cursor = g.conn.execute("SELECT restaurant_name FROM restaurants as r where r.rid=%s", rid)
+  if not len(cursor):
+    cursor.close()
+    return redirect('/restaurants')
+  rname = cursor[0][restaurant_name]
+  cursor.close()
+  cursor = g.conn.execute("SELECT m.menu_item_id, m.menu_name FROM menu_items as m, served_at as s where m.menu_item_id = s.menu_item_id and s.restaurant_id=%s", rid)
+  for result in cursor:
+    names.append((result['menu_item_id'], result['menu_name']))  
+  cursor.close()
+  context = dict(data = names, rname = rname)
+  return render_template("menu.html", **context)
+
+
 
 
 #
