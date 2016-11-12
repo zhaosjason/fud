@@ -178,16 +178,38 @@ def reviews():
     return redirect('/restaurants')
   mname = cursor.fetchone()['menu_name']
   cursor.close()
-  cursor = g.conn.execute("SELECT u.first_name, s.review_time, s.rating, s.review_text from (select r.review_id, r.review_time, r.rating, r.review_text from reviews as r, (select review_id from rate where rate.menu_item_id=%s) as p where r.review_id = p.review_id) as s, users as u, create_review as c where c.email = u.email and c.review_id = s.review_id order by s.review_time DESC", mid)
+  cursor = g.conn.execute("SELECT u.email, u.first_name, s.review_time, s.rating, s.review_text from (select r.review_id, r.review_time, r.rating, r.review_text from reviews as r, (select review_id from rate where rate.menu_item_id=%s) as p where r.review_id = p.review_id) as s, users as u, create_review as c where c.email = u.email and c.review_id = s.review_id order by s.review_time DESC", mid)
   names = []
   for result in cursor:
-    names.append((result[0], result[1], result[2], result[3]))
+    names.append((result[0], result[1], result[2], result[3], result[4]))
   cursor.close()
   cursor = g.conn.execute("SELECT avg(r.rating) from reviews as r, (select review_id from rate where rate.menu_item_id=%s) as p where r.review_id = p.review_id", mid)
   avg_rating = "{0:.2f}".format(cursor.fetchone()[0])
   cursor.close()
   context = dict(data = names, mname = mname, avg_rating = avg_rating)
   return render_template("reviews.html", **context)
+
+@app.route('/user')
+def user():
+  if not 'uid' in request.args:
+    return redirect('/restaurants')
+  uid = request.args['uid']
+  if not len(uid):
+    return redirect('/restaurants')
+  cursor = g.conn.execute("SELECT first_name, last_name FROM users as u where u.email=%s", uid)
+  if cursor.rowcount == 0:
+    cursor.close()
+    return redirect('/restaurants')
+  res = cursor.fetchone()
+  uname = res['first_name'] + " " + res['last_name']
+  cursor.close()
+  cursor = g.conn.execute("SELECT rev.review_time, m.menu_item_id, m.menu_name, r.restaurant_id, r.restaurant_name, rev.rating, rev.review_text from reviews as rev, restaurants as r, menu_items as m, served_at as s, create_review as c, rate as q where c.email=%s and c.review_id=rev.review_id and rev.review_id=q.review_id and q.menu_item_id=m.menu_item_id and m.menu_item_id=s.menu_item_id and s.restaurant_id=r.restaurant_id order by rev.review_time DESC;", uid)
+  names = []
+  for result in cursor:
+    names.append((result[0], result[1], result[2], result[3], result[4], result[5], result[6]))
+  cursor.close()
+  context = dict(data = names, uname = uname)
+  return render_template("user.html", **context)
 
 def is_number(s):
   try:

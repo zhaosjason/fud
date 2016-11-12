@@ -11,23 +11,23 @@
 
 
 <body>
-  <h1>Reviews For {{mname}}</h1>
+  <h1>Reviews By {{uname}}</h1>
 
-  <div> Average rating: {{avg_rating}}</div>
-  <br/>
   <table>
   <tr>
-    <th>Reviewer</th>
     <th>Time</th>
+    <th>Menu Item</th>
+    <th>Restaurant</th>
     <th>Rating</th>
     <th>Review</th>
   </tr>
   {% for n in data %}
     <tr>
-      <td><a href="/user?uid={{n[0]}}">{{n[1]}}</a></td>
-      <td>{{n[2]}}</td>
-      <td>{{n[3]}}</td>
-      <td>{{n[4]}}</td>
+      <td>{{n[0]}}</td>
+      <td><a href="/reviews?mid={{n[1]}}">{{n[2]}}</a></td>
+      <td><a href="/menu?rid={{n[3]}}">{{n[4]}}</a></td>
+      <td>{{n[5]}}</td>
+      <td>{{n[6]}}</td>
     </tr>
   {% endfor %}
   </table>
