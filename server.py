@@ -196,11 +196,12 @@ def user():
   uid = request.args['uid']
   if not len(uid):
     return redirect('/restaurants')
-  cursor = g.conn.execute("SELECT first_name FROM users as u where u.email=%s", uid)
+  cursor = g.conn.execute("SELECT first_name, last_name FROM users as u where u.email=%s", uid)
   if cursor.rowcount == 0:
     cursor.close()
     return redirect('/restaurants')
-  uname = cursor.fetchone()['first_name']
+  res = cursor.fetchone()
+  uname = res['first_name'] + " " + res['last_name']
   cursor.close()
   cursor = g.conn.execute("SELECT rev.review_time, m.menu_item_id, m.menu_name, r.restaurant_id, r.restaurant_name, rev.rating, rev.review_text from reviews as rev, restaurants as r, menu_items as m, served_at as s, create_review as c, rate as q where c.email=%s and c.review_id=rev.review_id and rev.review_id=q.review_id and q.menu_item_id=m.menu_item_id and m.menu_item_id=s.menu_item_id and s.restaurant_id=r.restaurant_id order by rev.review_time DESC;", uid)
   names = []
