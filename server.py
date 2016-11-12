@@ -42,7 +42,7 @@ app = Flask(__name__, template_folder=tmpl_dir)
 with open("password.txt", "r") as f:
   passwd = f.readline()
 
-DATABASEURI = "postgresql://ss4924:" + passwd + "@104.196.175.120/postgres"
+DATABASEURI = "postgresql://ss4924:" + passwd.strip() + "@104.196.175.120/postgres"
 
 
 #
