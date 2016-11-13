@@ -181,11 +181,14 @@ def user():
   return render_template('user.html', **context)
 
 @app.route('/add_review', methods=['POST'])
+@login_required
 def add_review():
   comment = request.form['comment']
   rating = request.form['rating']
+  mid = request.form['mid']
   print comment
   print rating
+  print mid
   # first_name = request.form['first_name']
   # last_name = request.form['last_name']
   # dob = request.form['dob']
@@ -294,7 +297,6 @@ def add_user():
   g.conn.execute('INSERT INTO users VALUES (%s, %s, %s, %s, DATE%s)', email, first_name, last_name, password, dob);
   session['user'] = email
   return redirect('/')
-
 
 @app.route('/login')
 def login():
