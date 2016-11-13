@@ -134,12 +134,30 @@ def reviews():
   mid = request.args['mid']
   if not is_number(mid):
     return redirect('/')
+  
   cursor = g.conn.execute("SELECT menu_name FROM menu_items as m where m.menu_item_id=%s", mid)
   if cursor.rowcount == 0:
     cursor.close()
     return redirect('/')
   mname = cursor.fetchone()['menu_name']
   cursor.close()
+  
+  cursor = g.conn.execute("SELECT r.restaurant_id, r.restaurant_name FROM restaurants as r, served_at as s where s.menu_item_id=%s and s.restaurant_id=r.restaurant_id", mid)
+  if cursor.rowcount == 0:
+    cursor.close()
+    return redirect('/')
+  res = cursor.fetchone()
+  rname = res['restaurant_name']
+  rid = res['restaurant_id']
+  cursor.close()
+
+  cursor = g.conn.execute("SELECT cuisine_name FROM belongs_to as b where b.menu_item_id=%s", mid)
+  if cursor.rowcount == 0:
+    cursor.close()
+    return redirect('/')
+  cname = cursor.fetchone()['cuisine_name']
+  cursor.close()
+
   cursor = g.conn.execute("SELECT u.email, u.first_name, s.review_time, s.rating, s.review_text from (select r.review_id, r.review_time, r.rating, r.review_text from reviews as r, (select review_id from rate where rate.menu_item_id=%s) as p where r.review_id = p.review_id) as s, users as u, create_review as c where c.email = u.email and c.review_id = s.review_id order by s.review_time DESC", mid)
   names = []
   for result in cursor:
@@ -155,7 +173,7 @@ def reviews():
     if num_ratings:
       avg_rating = '{0:.2f}'.format(res[0]) + ' / 10'  
   cursor.close()
-  context = dict(data = names, mname = mname, mid = mid, avg_rating = avg_rating, num_ratings = num_ratings)
+  context = dict(data = names, mname = mname, mid = mid, rname = rname, rid = rid, cname = cname, avg_rating = avg_rating, num_ratings = num_ratings)
   return render_template('reviews.html', **context)
 
 @app.route('/user')
