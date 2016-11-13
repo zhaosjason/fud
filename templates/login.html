@@ -1,0 +1,39 @@
+<html>
+  <style>
+    body{ 
+      font-size: 15pt;
+      font-family: arial;
+    }
+  </style>
+
+
+<body>
+  <h1>Login</h1>
+  <div>{{data[0]}}</div>
+  <form method="POST" action="/login_user">
+    <p>
+      <input placeholder="Email" type="text" name="email" required>  
+      <input placeholder="Password" type="password" name="password" required>
+    </p>
+  </form>
+
+  <h1>Create Account</h1>
+  <div>{{data[1]}}</div>
+
+  <form method="POST" action="/add_user">
+    <p>
+      <input placeholder="Email" type="text" name="email" required>  
+      <input placeholder="Password" type="password" name="password" required>
+    </p>
+    <p>
+      <input placeholder="First Name" type="text" name="first_name" required>
+      <input placeholder="Last Name" type="text" name="last_name" required>
+    </p>
+    <p>Date of birth: <input type="date" name="dob" required></p>
+    <p><input type="submit" value="Create User"></p>
+  </form>
+
+</body>
+
+
+</html>
