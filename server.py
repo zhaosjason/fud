@@ -134,11 +134,10 @@ def index():
 
 @app.route('/restaurants')
 def restaurants():
-  print str(request.args)
   cursor = g.conn.execute("SELECT * FROM restaurants")
   names = []
   for result in cursor:
-    names.append((result['restaurant_id'], result['restaurant_name']))  
+    names.append((result['restaurant_id'], result['restaurant_name']))
   cursor.close()
   context = dict(data = names)
   return render_template("restaurants.html", **context)
@@ -158,6 +157,9 @@ def menu():
   rname = cursor.fetchone()['restaurant_name']
   cursor.close()
   cursor = g.conn.execute("SELECT m.menu_item_id, m.menu_name FROM menu_items as m, served_at as s where m.menu_item_id = s.menu_item_id and s.restaurant_id=%s", rid)
+  if cursor.rowcount == 0:
+    cursor.close()
+    return redirect('/noresults')
   names = []
   for result in cursor:
     names.append((result['menu_item_id'], result['menu_name']))  
@@ -179,12 +181,15 @@ def reviews():
   mname = cursor.fetchone()['menu_name']
   cursor.close()
   cursor = g.conn.execute("SELECT u.email, u.first_name, s.review_time, s.rating, s.review_text from (select r.review_id, r.review_time, r.rating, r.review_text from reviews as r, (select review_id from rate where rate.menu_item_id=%s) as p where r.review_id = p.review_id) as s, users as u, create_review as c where c.email = u.email and c.review_id = s.review_id order by s.review_time DESC", mid)
+  if cursor.rowcount == 0:
+    cursor.close()
+    return redirect('/noresults')
   names = []
   for result in cursor:
     names.append((result[0], result[1], result[2], result[3], result[4]))
   cursor.close()
   cursor = g.conn.execute("SELECT avg(r.rating) from reviews as r, (select review_id from rate where rate.menu_item_id=%s) as p where r.review_id = p.review_id", mid)
-  avg_rating = "{0:.2f}".format(cursor.fetchone()[0])
+  avg_rating = '{0:.2f}'.format(cursor.fetchone()[0]) + ' / 10'
   cursor.close()
   context = dict(data = names, mname = mname, avg_rating = avg_rating)
   return render_template("reviews.html", **context)
@@ -204,12 +209,20 @@ def user():
   uname = res['first_name'] + " " + res['last_name']
   cursor.close()
   cursor = g.conn.execute("SELECT rev.review_time, m.menu_item_id, m.menu_name, r.restaurant_id, r.restaurant_name, rev.rating, rev.review_text from reviews as rev, restaurants as r, menu_items as m, served_at as s, create_review as c, rate as q where c.email=%s and c.review_id=rev.review_id and rev.review_id=q.review_id and q.menu_item_id=m.menu_item_id and m.menu_item_id=s.menu_item_id and s.restaurant_id=r.restaurant_id order by rev.review_time DESC;", uid)
+  if cursor.rowcount == 0:
+    cursor.close()
+    return redirect('/noresults')
   names = []
   for result in cursor:
     names.append((result[0], result[1], result[2], result[3], result[4], result[5], result[6]))
   cursor.close()
   context = dict(data = names, uname = uname)
   return render_template("user.html", **context)
+
+@app.route('/noresults')
+def noresults():
+  return render_template("noresults.html")
+
 
 def is_number(s):
   try:
