@@ -63,7 +63,7 @@ def login_required(f):
   def decorated_function(*args, **kwargs):
     user = g.get('user', None)
     if user is None:
-      return redirect(url_for('login', next=request.url))
+      return redirect('/login')
     return f(*args, **kwargs)
   return decorated_function
 
