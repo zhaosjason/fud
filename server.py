@@ -24,10 +24,10 @@ from flask import Flask, session, request, render_template, g, redirect, Respons
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
-with open("password.txt", "r") as f:
+with open('password.txt', 'r') as f:
   passwd = f.readline()
 
-DATABASEURI = "postgresql://ss4924:" + passwd.strip() + "@104.196.175.120/postgres"
+DATABASEURI = 'postgresql://ss4924:' + passwd.strip() + '@104.196.175.120/postgres'
 engine = create_engine(DATABASEURI)
 
 
@@ -82,7 +82,7 @@ def login_required(f):
 @app.route('/')
 @login_required
 def index():
-  return render_template("index.html")
+  return render_template('index.html')
 
 
 @app.route('/restaurants')
@@ -94,21 +94,21 @@ def restaurants():
     names.append((result['restaurant_id'], result['restaurant_name']))
   cursor.close()
   context = dict(data = names)
-  return render_template("restaurants.html", **context)
+  return render_template('restaurants.html', **context)
 
 
 @app.route('/menu')
 @login_required
 def menu():
   if not 'rid' in request.args:
-    return redirect('/restaurants')
+    return redirect('/')
   rid = request.args['rid']
   if not is_number(rid):
-    return redirect('/restaurants')
+    return redirect('/')
   cursor = g.conn.execute("SELECT restaurant_name FROM restaurants as r where r.restaurant_id=%s", rid)
   if cursor.rowcount == 0:
     cursor.close()
-    return redirect('/restaurants')
+    return redirect('/')
   rname = cursor.fetchone()['restaurant_name']
   cursor.close()
   cursor = g.conn.execute("SELECT m.menu_item_id, m.menu_name FROM menu_items as m, served_at as s where m.menu_item_id = s.menu_item_id and s.restaurant_id=%s", rid)
@@ -120,20 +120,20 @@ def menu():
     names.append((result['menu_item_id'], result['menu_name']))  
   cursor.close()
   context = dict(data = names, rname = rname)
-  return render_template("menu.html", **context)
+  return render_template('menu.html', **context)
 
 @app.route('/reviews')
 @login_required
 def reviews():
   if not 'mid' in request.args:
-    return redirect('/restaurants')
+    return redirect('/')
   mid = request.args['mid']
   if not is_number(mid):
-    return redirect('/restaurants')
+    return redirect('/')
   cursor = g.conn.execute("SELECT menu_name FROM menu_items as m where m.menu_item_id=%s", mid)
   if cursor.rowcount == 0:
     cursor.close()
-    return redirect('/restaurants')
+    return redirect('/')
   mname = cursor.fetchone()['menu_name']
   cursor.close()
   cursor = g.conn.execute("SELECT u.email, u.first_name, s.review_time, s.rating, s.review_text from (select r.review_id, r.review_time, r.rating, r.review_text from reviews as r, (select review_id from rate where rate.menu_item_id=%s) as p where r.review_id = p.review_id) as s, users as u, create_review as c where c.email = u.email and c.review_id = s.review_id order by s.review_time DESC", mid)
@@ -148,20 +148,20 @@ def reviews():
   avg_rating = '{0:.2f}'.format(cursor.fetchone()[0]) + ' / 10'
   cursor.close()
   context = dict(data = names, mname = mname, avg_rating = avg_rating)
-  return render_template("reviews.html", **context)
+  return render_template('reviews.html', **context)
 
 @app.route('/user')
 @login_required
 def user():
   if not 'uid' in request.args:
-    return redirect('/restaurants')
+    return redirect('/')
   uid = request.args['uid']
   if not len(uid):
-    return redirect('/restaurants')
+    return redirect('/')
   cursor = g.conn.execute("SELECT first_name, last_name FROM users as u where u.email=%s", uid)
   if cursor.rowcount == 0:
     cursor.close()
-    return redirect('/restaurants')
+    return redirect('/')
   res = cursor.fetchone()
   uname = res['first_name'] + " " + res['last_name']
   cursor.close()
@@ -174,12 +174,12 @@ def user():
     names.append((result[0], result[1], result[2], result[3], result[4], result[5], result[6]))
   cursor.close()
   context = dict(data = names, uname = uname)
-  return render_template("user.html", **context)
+  return render_template('user.html', **context)
 
 @app.route('/noresults')
 @login_required
 def noresults():
-  return render_template("noresults.html")
+  return render_template('noresults.html')
 
 def is_number(s):
   try:
@@ -200,17 +200,17 @@ def search():
   cursor.close()
 
   context = dict(data = cuisines)
-  return render_template("search.html", **context)
+  return render_template('search.html', **context)
 
 
 @app.route('/results')
 @login_required
 def results():
-  if not "inputZip" in request.args or not "inputCuisine" in request.args:
-    return redirect("/restaurants")
+  if not 'inputZip' in request.args or not 'inputCuisine' in request.args:
+    return redirect('/')
 
-  zipcode = request.args["inputZip"]
-  cuisine = request.args["inputCuisine"]
+  zipcode = request.args['inputZip']
+  cuisine = request.args['inputCuisine']
   results = [cuisine, zipcode]
 
   cursor = g.conn.execute(
@@ -233,17 +233,17 @@ def results():
 
   if cursor.rowcount == 0:
     cursor.close()
-    return redirect("/noresults")
+    return redirect('/noresults')
 
   for result in cursor:
     temp = [result[0], result[1], result[2], result[3], result[4]]
-    temp[2] = "{0:.2f}".format(temp[2]) + " / 10"
+    temp[2] = '{0:.2f}'.format(temp[2]) + ' / 10'
     results.append(temp)
 
   cursor.close()
 
   context = dict(data = results)
-  return render_template("results.html", **context)
+  return render_template('results.html', **context)
 
 @app.route('/login_user', methods=['POST'])
 def login_user():
@@ -275,23 +275,23 @@ def add_user():
 
 @app.route('/login')
 def login():
-  message1 = ""
-  message2 = ""
+  message1 = ''
+  message2 = ''
   if 'm' in request.args:
     code = request.args['m']
     if code == '0':
-      message1 = "Incorrect password. Try again."
+      message1 = 'Incorrect password. Try again.'
     elif code == '1':
-      message1 = "Email not found. Please create account first."  
+      message1 = 'Email not found. Please create account first.'  
     elif code == '2':
-      message2 = "Email already in use. Please log in."
+      message2 = 'Email already in use. Please log in.'
   context = dict(em1 = message1, em2 = message2)
-  return render_template("login.html", **context)
+  return render_template('login.html', **context)
 
 @app.route('/logout')
 def logout():
   session.pop('user', None)
-  return redirect("/")
+  return redirect('/')
 
 app.secret_key = 'secret_key'
 
