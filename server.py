@@ -88,7 +88,7 @@ def index():
 @app.route('/restaurants')
 @login_required
 def restaurants():
-  cursor = g.conn.execute("SELECT r.restaurant_id, r.restaurant_name, a.zipcode from restaurants as r, located_at as l, address as a where l.restaurant_id=r.restaurant_id and a.address_id=l.address_id")
+  cursor = g.conn.execute("SELECT r.restaurant_id, r.restaurant_name, a.zipcode from restaurants as r, located_at as l, address as a where l.restaurant_id=r.restaurant_id and a.address_id=l.address_id order by r.restaurant_name")
   names = []
   for result in cursor:
     names.append((result['restaurant_id'], result['restaurant_name'], result['zipcode']))
