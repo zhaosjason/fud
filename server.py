@@ -298,7 +298,7 @@ def login():
     elif m == 2:
       message2 = "Email already in use. Please log in."
   context = dict(data = [message1, message2])
-  return render_template("login.html")
+  return render_template("login.html", **context)
 
 
 if __name__ == "__main__":
