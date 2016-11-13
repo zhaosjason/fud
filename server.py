@@ -289,7 +289,7 @@ def add_user():
 def login():
   message1 = ""
   message2 = ""
-  if m in request.args:
+  if 'm' in request.args:
     code = request.args['m']
     if m == 0:
       message1 = "Incorrect password. Try again."
