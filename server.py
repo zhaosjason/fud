@@ -256,13 +256,12 @@ def results():
     return redirect('/noresults')
 
   for result in cursor:
-    temp = [result[0], result[1], result[2], result[3], result[4]]
-
-    if temp[4] == "":
-      temp[4] = "n/a"
-      
-    temp[4] = '{0:.2f}'.format(temp[2]) + " / 10"
-    results.append(temp)
+    avg = result[4]
+    if avg == '':
+      avg = 'n/a'
+    else: 
+      avg = '{0:.2f}'.format(avg) + " / 10"
+    results.append((result[0], result[1], result[2], result[3], avg))
 
   cursor.close()
 
