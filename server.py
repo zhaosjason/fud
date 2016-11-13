@@ -217,23 +217,7 @@ def results():
   cuisine = request.args['inputCuisine']
   results = [cuisine, zipcode]
 
-  cursor = g.conn.execute(
-    """
-    SELECT rests.menu_name, rests.restaurant_name, avg(r.rating) AS avg_rating, rests.restaurant_id, rests.menu_item_id
-    FROM reviews AS r, rate AS t, (
-      SELECT n.menu_item_id, n.menu_name, res.restaurant_name, res.restaurant_id
-      FROM served_at AS s, restaurants AS res, located_at AS loc, address AS a, (
-        SELECT m.menu_item_id, m.menu_name 
-        FROM menu_items AS m, belongs_to AS b 
-        WHERE b.cuisine_name = %s AND b.menu_item_id = m.menu_item_id
-      ) AS n 
-      WHERE s.restaurant_id = res.restaurant_id AND res.restaurant_id = loc.address_id AND loc.address_id = a.address_id AND
-      a.zipcode = %s AND s.menu_item_id = n.menu_item_id
-    ) AS rests 
-    WHERE t.menu_item_id = rests.menu_item_id and t.review_id = r.review_id 
-    GROUP BY rests.menu_name, rests.restaurant_name, rests.restaurant_id, rests.menu_item_id
-    ORDER BY avg_rating DESC;
-    """, cuisine, zipcode)
+  cursor = g.conn.execute("SELECT m.menu_item_id, m.menu_name, r.restaurant_id, r.restaurant_name, avg(p.rating) as avg from menu_items as m, restaurants as r, served_at as s, located_at as l, address as a, reviews as p, rate as q, belongs_to as b where a.zipcode=%s and b.cuisine_name=%s and b.menu_item_id=m.menu_item_id and a.address_id=l.address_id and l.restaurant_id=r.restaurant_id and r.restaurant_id=s.restaurant_id and s.menu_item_id=m.menu_item_id and m.menu_item_id=q.menu_item_id and q.review_id=p.review_id group by m.menu_item_id, m.menu_name, r.restaurant_id, r.restaurant_name order by avg DESC", cuisine, zipcode)
 
   if cursor.rowcount == 0:
     cursor.close()
