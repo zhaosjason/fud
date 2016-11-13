@@ -186,16 +186,15 @@ def add_review():
   comment = request.form['comment']
   rating = request.form['rating']
   mid = request.form['mid']
-  print comment
-  print rating
-  print mid
   cursor = g.conn.execute("SELECT max(review_id) FROM reviews")
   rid = 1
   if cursor.rowcount:
     rid = cursor.fetchone()[0] + 1
-  print rid
-  #g.conn.execute('INSERT INTO reviews VALUES (%s, %s, %s, %s, DATE%s)', email, first_name, last_name, password, dob);
-  # session['user'] = email
+  email = session['user']
+  print email
+  # g.conn.execute('INSERT INTO reviews VALUES (%s, now(), %s, %s)', rid, rating, review_text);
+  # g.conn.execute('INSERT INTO create_review VALUES (%s, %s)', rid, email);
+  # g.conn.execute('INSERT INTO rate VALUES (%s, %s)', rid, mid);
   return redirect('/reviews?mid=' + mid)
 
 @app.route('/noresults')
