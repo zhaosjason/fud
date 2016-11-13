@@ -259,6 +259,7 @@ def add():
 
 @app.route('/login_user', methods=['POST'])
 def login_user():
+  print "login_user method called"
   email = request.form['email']
   password = request.form['password']
   cursor = g.conn.execute("SELECT password FROM users WHERE users.email=%s", email)
@@ -272,6 +273,7 @@ def login_user():
 
 @app.route('/add_user', methods=['POST'])
 def add_user():
+  print "add_user method called"
   email = request.form['email']
   password = request.form['password']
   first_name = request.form['first_name']
@@ -287,6 +289,7 @@ def add_user():
 
 @app.route('/login')
 def login():
+  print "login method called"
   message1 = ""
   message2 = ""
   if 'm' in request.args:
