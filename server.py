@@ -248,7 +248,7 @@ def results():
     ) AS rests
     ON r.menu_item_id = rests.menu_item_id 
     GROUP BY rests.menu_name, rests.restaurant_name, rests.restaurant_id, rests.menu_item_id
-    ORDER BY case when avg_rating is null then 1 else 0 end, avg_rating DESC;
+    ORDER BY avg_rating DESC NULLS LAST;
     """, cuisine, zipcode)
 
   if cursor.rowcount == 0:
