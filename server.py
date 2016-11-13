@@ -141,17 +141,19 @@ def reviews():
   mname = cursor.fetchone()['menu_name']
   cursor.close()
   cursor = g.conn.execute("SELECT u.email, u.first_name, s.review_time, s.rating, s.review_text from (select r.review_id, r.review_time, r.rating, r.review_text from reviews as r, (select review_id from rate where rate.menu_item_id=%s) as p where r.review_id = p.review_id) as s, users as u, create_review as c where c.email = u.email and c.review_id = s.review_id order by s.review_time DESC", mid)
-  if cursor.rowcount == 0:
-    cursor.close()
-    return redirect('/noresults')
   names = []
   for result in cursor:
     names.append((result[0], result[1], result[2], result[3], result[4]))
   cursor.close()
-  cursor = g.conn.execute("SELECT avg(r.rating) from reviews as r, (select review_id from rate where rate.menu_item_id=%s) as p where r.review_id = p.review_id", mid)
-  avg_rating = '{0:.2f}'.format(cursor.fetchone()[0]) + ' / 10'
+  cursor = g.conn.execute("SELECT avg(r.rating), count(r.rating) from reviews as r, (select review_id from rate where rate.menu_item_id=%s) as p where r.review_id = p.review_id", mid)
+  avg_rating = 'n/a'
+  num_ratings = 0
+  if cursor.rowcount:
+    res = cursor.fetchone()
+    avg_rating = '{0:.2f}'.format(res[0]) + ' / 10'
+    num_ratings = res[1]
   cursor.close()
-  context = dict(data = names, mname = mname, mid = mid, avg_rating = avg_rating)
+  context = dict(data = names, mname = mname, mid = mid, avg_rating = avg_rating, num_ratings = num_ratings)
   return render_template('reviews.html', **context)
 
 @app.route('/user')
