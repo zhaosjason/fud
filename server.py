@@ -111,14 +111,14 @@ def menu():
     return redirect('/')
   rname = cursor.fetchone()['restaurant_name']
   cursor.close()
-  cursor = g.conn.execute("SELECT m.menu_item_id, m.menu_name, avg(r.rating) as avg FROM menu_items as m, served_at as s, reviews as r, rate as q where m.menu_item_id = s.menu_item_id and s.restaurant_id=%s and q.menu_item_id=m.menu_item_id and q.review_id=r.review_id group by m.menu_name, m.menu_item_id order by avg DESC", rid)
+  cursor = g.conn.execute("SELECT m.menu_item_id, m.menu_name, avg(r.rating) as avg, count(r.rating) as cnt FROM menu_items as m, served_at as s, reviews as r, rate as q where m.menu_item_id = s.menu_item_id and s.restaurant_id=%s and q.menu_item_id=m.menu_item_id and q.review_id=r.review_id group by m.menu_name, m.menu_item_id order by avg DESC", rid)
   if cursor.rowcount == 0:
     cursor.close()
     return redirect('/noresults')
   names = []
   for result in cursor:
     avg = '{0:.2f}'.format(result['avg']) + ' / 10'
-    names.append((result['menu_item_id'], result['menu_name'], avg))  
+    names.append((result['menu_item_id'], result['menu_name'], avg, result['cnt']))  
   cursor.close()
   context = dict(data = names, rname = rname)
   return render_template('menu.html', **context)
