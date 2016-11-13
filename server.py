@@ -81,67 +81,13 @@ def login_required(f):
 # see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
 #
 @app.route('/')
+@login_required
 def index():
-  """
-  request is a special object that Flask provides to access web request information:
-
-  request.method:   "GET" or "POST"
-  request.form:     if the browser submitted a form, this contains the data in the form
-  request.args:     dictionary of URL arguments e.g., {a:1, b:2} for http://localhost?a=1&b=2
-
-  See its API: http://flask.pocoo.org/docs/0.10/api/#incoming-request-data
-  """
-
-  # DEBUG: this is debugging code to see what request looks like
-  print request.args
-
-
-  #
-  # example of a database query
-  #
-  cursor = g.conn.execute("SELECT name FROM test")
-  names = []
-  for result in cursor:
-    names.append(result['name'])  # can also be accessed using result[0]
-  cursor.close()
-
-  #
-  # Flask uses Jinja templates, which is an extension to HTML where you can
-  # pass data to a template and dynamically generate HTML based on the data
-  # (you can think of it as simple PHP)
-  # documentation: https://realpython.com/blog/python/primer-on-jinja-templating/
-  #
-  # You can see an example template in templates/index.html
-  #
-  # context are the variables that are passed to the template.
-  # for example, "data" key in the context variable defined below will be 
-  # accessible as a variable in index.html:
-  #
-  #     # will print: [u'grace hopper', u'alan turing', u'ada lovelace']
-  #     <div>{{data}}</div>
-  #     
-  #     # creates a <div> tag for each element in data
-  #     # will print: 
-  #     #
-  #     #   <div>grace hopper</div>
-  #     #   <div>alan turing</div>
-  #     #   <div>ada lovelace</div>
-  #     #
-  #     {% for n in data %}
-  #     <div>{{n}}</div>
-  #     {% endfor %}
-  #
-  context = dict(data = names)
-
-
-  #
-  # render_template looks in the templates/ folder for files.
-  # for example, the below file reads template/index.html
-  #
-  return render_template("index.html", **context)
+  return render_template("index.html")
 
 
 @app.route('/restaurants')
+@login_required
 def restaurants():
   cursor = g.conn.execute("SELECT * FROM restaurants")
   names = []
@@ -153,6 +99,7 @@ def restaurants():
 
 
 @app.route('/menu')
+@login_required
 def menu():
   if not 'rid' in request.args:
     return redirect('/restaurants')
@@ -205,6 +152,7 @@ def reviews():
   return render_template("reviews.html", **context)
 
 @app.route('/user')
+@login_required
 def user():
   if not 'uid' in request.args:
     return redirect('/restaurants')
@@ -230,6 +178,7 @@ def user():
   return render_template("user.html", **context)
 
 @app.route('/noresults')
+@login_required
 def noresults():
   return render_template("noresults.html")
 
@@ -240,20 +189,8 @@ def is_number(s):
   except ValueError:
     return False
 
-#
-# This is an example of a different path.  You can see it at
-# 
-#     localhost:8111/another
-#
-# notice that the functio name is another() rather than index()
-# the functions for each app.route needs to have different names
-#
-@app.route('/another')
-def another():
-  return render_template("anotherfile.html")
-
-
 @app.route('/search')
+@login_required
 def search():
   cuisines = []
   cursor = g.conn.execute("SELECT cuisine_name FROM cuisines")
@@ -268,6 +205,7 @@ def search():
 
 
 @app.route('/results')
+@login_required
 def results():
   if not "inputZip" in request.args or not "inputCuisine" in request.args:
     return redirect("/restaurants")
@@ -319,11 +257,48 @@ def add():
   g.conn.execute(text(cmd), name1 = name, name2 = name);
   return redirect('/')
 
+@app.route('/login_user', methods=['POST'])
+def login_user():
+  email = request.form['email']
+  password = request.form['password']
+  cursor = g.conn.execute("SELECT password FROM users WHERE users.email=%s", email)
+  if not cursor.rowcount:
+    return redirect('/login?m=1')
+  pw = cursor.fetchone()[0]
+  if password != pw:
+    return redirect('/login?m=0')
+  g.user = email
+  return redirect('/')
+
+@app.route('/add_user', methods=['POST'])
+def add_user():
+  email = request.form['email']
+  password = request.form['password']
+  first_name = request.form['first_name']
+  last_name = request.form['last_name']
+  dob = request.form['dob']
+  cursor = g.conn.execute("SELECT * FROM users WHERE users.email=%s", email)
+  if cursor.rowcount:
+    return redirect('/login?m=2')
+  g.conn.execute('INSERT INTO users VALUES (%s, %s, %s, %s, DATE%s)', email, first_name, last_name, password, dob);
+  g.user = email
+  return redirect('/')
+
 
 @app.route('/login')
 def login():
-    abort(401)
-    this_is_never_executed()
+  message1 = ""
+  message2 = ""
+  if m in request.args:
+    code = request.args['m']
+    if m == 0:
+      message1 = "Incorrect password. Try again."
+    elif m == 1:
+      message1 = "Email not found. Please create account first."  
+    elif m == 2:
+      message2 = "Email already in use. Please log in."
+  context = dict(data = [message1, message2])
+  return render_template("login.html")
 
 
 if __name__ == "__main__":
