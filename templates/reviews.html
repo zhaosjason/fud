@@ -11,6 +11,9 @@
       width: 300px;
       height: 120px;
     }
+    #hidden {
+      display: none;
+    }
   </style>
 
 
@@ -42,6 +45,7 @@
       <textarea placeholder="Enter review here..." name="comment" id="comment"></textarea>
     </div>
     <p>Rating (0-10): <input type="number" name="rating" min="0" max="10" required></p>
+    <p id="hidden"><input type="number" name="mid" value="{{mid}}"></p>
     <p><input type="submit" value="Add Review"></p>
   </form>
 </body>

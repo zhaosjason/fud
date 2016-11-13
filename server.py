@@ -151,7 +151,7 @@ def reviews():
   cursor = g.conn.execute("SELECT avg(r.rating) from reviews as r, (select review_id from rate where rate.menu_item_id=%s) as p where r.review_id = p.review_id", mid)
   avg_rating = '{0:.2f}'.format(cursor.fetchone()[0]) + ' / 10'
   cursor.close()
-  context = dict(data = names, mname = mname, avg_rating = avg_rating)
+  context = dict(data = names, mname = mname, mid = mid, avg_rating = avg_rating)
   return render_template('reviews.html', **context)
 
 @app.route('/user')
