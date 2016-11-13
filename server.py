@@ -58,6 +58,13 @@ def teardown_request(exception):
   except Exception as e:
     pass
 
+def login_required(f):
+  @wraps(f)
+  def decorated_function(*args, **kwargs):
+      if g.user is None:
+          return redirect(url_for('login', next=request.url))
+      return f(*args, **kwargs)
+  return decorated_function
 
 #
 # @app.route is a decorator around index() that means:
@@ -224,14 +231,6 @@ def user():
 @app.route('/noresults')
 def noresults():
   return render_template("noresults.html")
-
-def login_required(f):
-  @wraps(f)
-  def decorated_function(*args, **kwargs):
-      if g.user is None:
-          return redirect(url_for('login', next=request.url))
-      return f(*args, **kwargs)
-  return decorated_function
 
 def is_number(s):
   try:
