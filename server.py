@@ -19,7 +19,7 @@ import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from functools import wraps
-from flask import Flask, request, render_template, g, redirect, Response
+from flask import Flask, session, request, render_template, g, redirect, Response
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -61,8 +61,7 @@ def teardown_request(exception):
 def login_required(f):
   @wraps(f)
   def decorated_function(*args, **kwargs):
-    user = g.get('user', None)
-    if user is None:
+    if 'user' not in session:
       return redirect('/login')
     return f(*args, **kwargs)
   return decorated_function
@@ -246,20 +245,8 @@ def results():
   context = dict(data = results)
   return render_template("results.html", **context)
 
-
-
-# Example of adding new data to the database
-@app.route('/add', methods=['POST'])
-def add():
-  name = request.form['name']
-  print name
-  cmd = 'INSERT INTO test(name) VALUES (:name1), (:name2)';
-  g.conn.execute(text(cmd), name1 = name, name2 = name);
-  return redirect('/')
-
 @app.route('/login_user', methods=['POST'])
 def login_user():
-  print "login_user method called"
   email = request.form['email']
   password = request.form['password']
   cursor = g.conn.execute("SELECT password FROM users WHERE users.email=%s", email)
@@ -268,12 +255,11 @@ def login_user():
   pw = cursor.fetchone()[0]
   if password != pw:
     return redirect('/login?m=0')
-  g.user = email
+  session['user'] = email
   return redirect('/')
 
 @app.route('/add_user', methods=['POST'])
 def add_user():
-  print "add_user method called"
   email = request.form['email']
   password = request.form['password']
   first_name = request.form['first_name']
@@ -283,13 +269,12 @@ def add_user():
   if cursor.rowcount:
     return redirect('/login?m=2')
   g.conn.execute('INSERT INTO users VALUES (%s, %s, %s, %s, DATE%s)', email, first_name, last_name, password, dob);
-  g.user = email
+  session['user'] = email
   return redirect('/')
 
 
 @app.route('/login')
 def login():
-  print "login method called"
   message1 = ""
   message2 = ""
   if 'm' in request.args:
@@ -301,8 +286,6 @@ def login():
     elif code == '2':
       message2 = "Email already in use. Please log in."
   context = dict(em1 = message1, em2 = message2)
-  print "message 1 is: " + message1
-  print "message 2 is: " + message2
   return render_template("login.html", **context)
 
 
