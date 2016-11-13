@@ -197,7 +197,7 @@ def add_review():
   #   return redirect('/login?m=2')
   # g.conn.execute('INSERT INTO users VALUES (%s, %s, %s, %s, DATE%s)', email, first_name, last_name, password, dob);
   # session['user'] = email
-  return redirect('/')
+  return redirect('/reviews?mid=' + mid)
 
 @app.route('/noresults')
 @login_required
