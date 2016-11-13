@@ -5,6 +5,7 @@ Made with love (not really) by
  - Jason Zhao (jsz2107 - zhao.s.jason@columbia.edu)
 
 COMS 4111: Introduction to Databases, Fall 2016.
+Part 1 project proposal: https://goo.gl/biSZ3M
 
 Description
 -------------------------------------------------------------------------------
