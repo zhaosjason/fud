@@ -288,6 +288,11 @@ def login():
   context = dict(em1 = message1, em2 = message2)
   return render_template("login.html", **context)
 
+@app.route('/logout')
+def logout():
+  session.pop('user', None)
+  return redirect("/")
+
 app.secret_key = 'secret_key'
 
 if __name__ == "__main__":
