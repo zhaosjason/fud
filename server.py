@@ -168,6 +168,7 @@ def menu():
   return render_template("menu.html", **context)
 
 @app.route('/reviews')
+@login_required
 def reviews():
   if not 'mid' in request.args:
     return redirect('/restaurants')
@@ -223,6 +224,13 @@ def user():
 def noresults():
   return render_template("noresults.html")
 
+def login_required(f):
+  @wraps(f)
+  def decorated_function(*args, **kwargs):
+      if g.user is None:
+          return redirect(url_for('login', next=request.url))
+      return f(*args, **kwargs)
+  return decorated_function
 
 def is_number(s):
   try:
