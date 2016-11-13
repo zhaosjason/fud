@@ -247,6 +247,9 @@ def search():
 
 @app.route('/results')
 def results():
+  if not "inputZip" in request.args or not "inputCuisine" in request.args:
+    return redirect("/restaurants")
+
   zipcode = request.args["inputZip"]
   cuisine = request.args["inputCuisine"]
   results = [cuisine, zipcode]
@@ -269,9 +272,13 @@ def results():
     ORDER BY avg_rating DESC;
     """, cuisine, zipcode)
 
+  if cursor.rowcount == 0:
+    cursor.close()
+    return redirect("/noresults")
+
   for result in cursor:
     temp = [result[0], result[1], result[2], result[3], result[4]]
-    temp[2] = "{0:.2f}".format(temp[2])
+    temp[2] = "{0:.2f}".format(temp[2]) + " / 10"
     results.append(temp)
 
   cursor.close()

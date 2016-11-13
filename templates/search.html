@@ -11,7 +11,7 @@
 		<h1>Search for Food</h1>
 		<div>
 			<form action="/results" method="GET">
-			<input type="text" name="inputZip" placeholder="Zipcode">
+			<input type="text" name="inputZip" placeholder="Zipcode" required>
 
 			<select name="inputCuisine">
 				{% for cuisine in data %}
