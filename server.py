@@ -191,10 +191,9 @@ def add_review():
   if cursor.rowcount:
     rid = cursor.fetchone()[0] + 1
   email = session['user']
-  print email
-  # g.conn.execute('INSERT INTO reviews VALUES (%s, now(), %s, %s)', rid, rating, review_text);
-  # g.conn.execute('INSERT INTO create_review VALUES (%s, %s)', rid, email);
-  # g.conn.execute('INSERT INTO rate VALUES (%s, %s)', rid, mid);
+  g.conn.execute('INSERT INTO reviews VALUES (%s, now(), %s, %s)', rid, rating, review_text);
+  g.conn.execute('INSERT INTO create_review VALUES (%s, %s)', rid, email);
+  g.conn.execute('INSERT INTO rate VALUES (%s, %s)', rid, mid);
   return redirect('/reviews?mid=' + mid)
 
 @app.route('/noresults')
