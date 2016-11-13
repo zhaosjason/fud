@@ -18,6 +18,7 @@ Read about it online.
 import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
+from functools import wraps
 from flask import Flask, request, render_template, g, redirect, Response
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
@@ -57,6 +58,14 @@ def teardown_request(exception):
   except Exception as e:
     pass
 
+def login_required(f):
+  @wraps(f)
+  def decorated_function(*args, **kwargs):
+    user = g.get('user', None)
+    if user is None:
+      return redirect('/login')
+    return f(*args, **kwargs)
+  return decorated_function
 
 #
 # @app.route is a decorator around index() that means:
@@ -168,6 +177,7 @@ def menu():
   return render_template("menu.html", **context)
 
 @app.route('/reviews')
+@login_required
 def reviews():
   if not 'mid' in request.args:
     return redirect('/restaurants')
@@ -222,7 +232,6 @@ def user():
 @app.route('/noresults')
 def noresults():
   return render_template("noresults.html")
-
 
 def is_number(s):
   try:
