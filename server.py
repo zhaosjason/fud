@@ -180,6 +180,22 @@ def user():
   context = dict(data = names, uname = uname)
   return render_template('user.html', **context)
 
+@app.route('/add_review', methods=['POST'])
+def add_review():
+  comment = request.form['comment']
+  rating = request.form['rating']
+  print comment
+  print rating
+  # first_name = request.form['first_name']
+  # last_name = request.form['last_name']
+  # dob = request.form['dob']
+  # cursor = g.conn.execute("SELECT * FROM users WHERE users.email=%s", email)
+  # if cursor.rowcount:
+  #   return redirect('/login?m=2')
+  # g.conn.execute('INSERT INTO users VALUES (%s, %s, %s, %s, DATE%s)', email, first_name, last_name, password, dob);
+  # session['user'] = email
+  return redirect('/')
+
 @app.route('/noresults')
 @login_required
 def noresults():
@@ -215,7 +231,6 @@ def results():
 
   zipcode = request.args['inputZip']
   cuisine = request.args['inputCuisine']
-  results = [cuisine, zipcode]
 
   cursor = g.conn.execute(
     """
@@ -245,12 +260,12 @@ def results():
     if temp[4] == "":
       temp[4] = "n/a"
       
-    temp[2] = '{0:.2f}'.format(temp[2]) + " / 10"
+    temp[4] = '{0:.2f}'.format(temp[2]) + " / 10"
     results.append(temp)
 
   cursor.close()
 
-  context = dict(data = results)
+  context = dict(data = results, cuisine = cuisine, zipcode = zipcode)
   return render_template('results.html', **context)
 
 @app.route('/login_user', methods=['POST'])
