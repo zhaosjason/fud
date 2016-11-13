@@ -141,17 +141,21 @@ def reviews():
   mname = cursor.fetchone()['menu_name']
   cursor.close()
   cursor = g.conn.execute("SELECT u.email, u.first_name, s.review_time, s.rating, s.review_text from (select r.review_id, r.review_time, r.rating, r.review_text from reviews as r, (select review_id from rate where rate.menu_item_id=%s) as p where r.review_id = p.review_id) as s, users as u, create_review as c where c.email = u.email and c.review_id = s.review_id order by s.review_time DESC", mid)
-  if cursor.rowcount == 0:
-    cursor.close()
-    return redirect('/noresults')
   names = []
   for result in cursor:
     names.append((result[0], result[1], result[2], result[3], result[4]))
   cursor.close()
-  cursor = g.conn.execute("SELECT avg(r.rating) from reviews as r, (select review_id from rate where rate.menu_item_id=%s) as p where r.review_id = p.review_id", mid)
-  avg_rating = '{0:.2f}'.format(cursor.fetchone()[0]) + ' / 10'
+  cursor = g.conn.execute("SELECT avg(r.rating), count(r.rating) from reviews as r, (select review_id from rate where rate.menu_item_id=%s) as p where r.review_id = p.review_id", mid)
+  avg_rating = 'n/a'
+  num_ratings = 0
+  if cursor.rowcount:
+    res = cursor.fetchone()
+    num_ratings = res[1]
+    avg_rating = 'n/a'
+    if num_ratings:
+      avg_rating = '{0:.2f}'.format(res[0]) + ' / 10'  
   cursor.close()
-  context = dict(data = names, mname = mname, mid = mid, avg_rating = avg_rating)
+  context = dict(data = names, mname = mname, mid = mid, avg_rating = avg_rating, num_ratings = num_ratings)
   return render_template('reviews.html', **context)
 
 @app.route('/user')
@@ -181,20 +185,20 @@ def user():
   return render_template('user.html', **context)
 
 @app.route('/add_review', methods=['POST'])
+@login_required
 def add_review():
   comment = request.form['comment']
   rating = request.form['rating']
-  print comment
-  print rating
-  # first_name = request.form['first_name']
-  # last_name = request.form['last_name']
-  # dob = request.form['dob']
-  # cursor = g.conn.execute("SELECT * FROM users WHERE users.email=%s", email)
-  # if cursor.rowcount:
-  #   return redirect('/login?m=2')
-  # g.conn.execute('INSERT INTO users VALUES (%s, %s, %s, %s, DATE%s)', email, first_name, last_name, password, dob);
-  # session['user'] = email
-  return redirect('/')
+  mid = request.form['mid']
+  cursor = g.conn.execute("SELECT max(review_id) FROM reviews")
+  rid = 1
+  if cursor.rowcount:
+    rid = cursor.fetchone()[0] + 1
+  email = session['user']
+  g.conn.execute('INSERT INTO reviews VALUES (%s, now(), %s, %s)', rid, rating, comment);
+  g.conn.execute('INSERT INTO create_review VALUES (%s, %s)', rid, email);
+  g.conn.execute('INSERT INTO rate VALUES (%s, %s)', rid, mid);
+  return redirect('/reviews?mid=' + mid)
 
 @app.route('/noresults')
 @login_required
@@ -294,7 +298,6 @@ def add_user():
   g.conn.execute('INSERT INTO users VALUES (%s, %s, %s, %s, DATE%s)', email, first_name, last_name, password, dob);
   session['user'] = email
   return redirect('/')
-
 
 @app.route('/login')
 def login():
