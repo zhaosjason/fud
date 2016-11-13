@@ -12,22 +12,23 @@
 
 <body>
   <h1>Menu For {{rname}}</h1>
-  <table>
-  <tr>
-    <th>Item</th>
-    <th>Cuisine</th>
-    <th>Average Rating</th>
-    <th>Number of Ratings</th>
-  </tr>
-  {% for n in data %}
+  {% for key in data %}
+    <h4>{{key}}</h4>
+    <table>
     <tr>
-      <td><a href="/reviews?mid={{n[0]}}">{{n[1]}}</a></td>
-      <td>{{n[2]}}</td>
-      <td>{{n[3]}}</td>
-      <td>{{n[4]}}</td>
+      <th>Item</th>
+      <th>Average Rating</th>
+      <th>Number of Ratings</th>
     </tr>
+    {% for n in data[key] %}
+      <tr>
+        <td><a href="/reviews?mid={{n[0]}}">{{n[1]}}</a></td>
+        <td>{{n[2]}}</td>
+        <td>{{n[3]}}</td>
+      </tr>
+    {% endfor %}
+    </table>
   {% endfor %}
-  </table>
 
 </body>
 

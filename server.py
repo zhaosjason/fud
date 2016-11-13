@@ -105,23 +105,33 @@ def menu():
   rid = request.args['rid']
   if not is_number(rid):
     return redirect('/')
+  
   cursor = g.conn.execute("SELECT restaurant_name FROM restaurants as r where r.restaurant_id=%s", rid)
   if cursor.rowcount == 0:
     cursor.close()
     return redirect('/')
   rname = cursor.fetchone()['restaurant_name']
   cursor.close()
+  
   cursor = g.conn.execute("SELECT m.menu_item_id, m.menu_name, c.cuisine_name, avg(r.rating) as avg, count(r.rating) as cnt FROM menu_items as m, served_at as s, reviews as r, rate as q, cuisines as c, belongs_to as b where b.menu_item_id=m.menu_item_id and c.cuisine_name=b.cuisine_name and m.menu_item_id = s.menu_item_id and s.restaurant_id=%s and q.menu_item_id=m.menu_item_id and q.review_id=r.review_id group by m.menu_name, m.menu_item_id, c.cuisine_name order by avg DESC", rid)
-  names = []
+  names = {}
   for result in cursor:
     avg = '{0:.2f}'.format(result['avg']) + ' / 10'
-    names.append((result['menu_item_id'], result['menu_name'], result['cuisine_name'], avg, result['cnt']))
+    cuisine = result['cuisine_name']
+    if cuisine not in names:
+      names[cuisine] = []
+    names[cuisine].append((result['menu_item_id'], result['menu_name'], avg, result['cnt']))
   cursor.close()
+
   cursor = g.conn.execute("SELECT m.menu_item_id, m.menu_name, c.cuisine_name FROM menu_items as m, served_at as s, rate as q, cuisines as c, belongs_to as b where b.menu_item_id=m.menu_item_id and c.cuisine_name=b.cuisine_name and m.menu_item_id=s.menu_item_id and s.restaurant_id=%s and not exists (select * from rate where rate.menu_item_id=m.menu_item_id) group by m.menu_item_id, m.menu_name, c.cuisine_name order by c.cuisine_name", rid)
   for result in cursor:
-    names.append((result['menu_item_id'], result['menu_name'], result['cuisine_name'], 'n/a', 0))
+    cuisine = result['cuisine_name']
+    if cuisine not in names:
+      names[cuisine] = []
+    names[cuisine].append((result['menu_item_id'], result['menu_name'], 'n/a', 0))
   cursor.close()
-  if not len(names):
+  
+  if not names:
     return redirect('/noresults')
   context = dict(data = names, rname = rname)
   return render_template('menu.html', **context)
