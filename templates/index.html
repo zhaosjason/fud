@@ -1,29 +1,55 @@
 <html>
-  <style>
-    body{ 
-      font-size: 15pt;
-      font-family: arial;
-    }
-  </style>
+	<style>
+		body{ 
+			font-size: 15pt;
+			font-family: arial;
+			text-align: center;
+		}
+
+		a {
+			text-decoration: none;
+			color: #000;
+		}
+
+		#wrapper {
+			padding: 100px;
+		}
+
+		.btn {
+			width: 300px;
+			height: 100px;
+			margin: 50px auto;
+			line-height: 100px;
+			text-align: center;
+		}
+
+		#restaurants {
+			background-color: #f49542;
+		}
+
+		#search {
+			background-color: #429ef4;
+		}
+	</style>
 
 
-<body>
-  <h1>Some famous Computer Scientists</h1>
-  <div>{{data}}</div>
+	<body>
+		<div id="wrapper">
+			<h1 id="title">FUDFUDFUDFUDFUD</h1>
+			<a href="/restaurants"><div id="restaurants" class="btn">All Restaurants</div></a>
+			<a href="/search"><div id="search" class="btn">Search for Food</div></a>
+		</div>
+	</body>
 
-  <div>
-    {% for n in data %}
-    <div>{{n}}</div>
-    {% endfor %}
-  </div>
+	<script type="text/javascript">
+		function changeColor(){
+			document.getElementById("title").style.color = (function(m,s,c){return (c ? arguments.callee(m,s,c-1) : '#') +
+			s[m.floor(m.random() * s.length)]})(Math,'89ABCDEF',5);
+			setTimeout(function(){
+				changeColor();
+			}, 500);
+		}
 
-<p><a href="/another">Go to the other page</a></p>
-
-<form method="POST" action="/add">
-<p>Name of new computer scientist: <input type="text" name="name"> <input type="submit" value="Add"></p>
-</form>
-
-</body>
-
-
+  		changeColor();
+	</script>
 </html>
