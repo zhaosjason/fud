@@ -23,6 +23,7 @@
   <div> Average rating: {{avg_rating}}</div>
   <div> Number of ratings: {{num_ratings}}</div>
   <br/>
+  {% if num_ratings > 0 %}
   <table>
   <tr>
     <th>Reviewer</th>
@@ -39,6 +40,7 @@
     </tr>
   {% endfor %}
   </table>
+  {% endif %}
 
   <h3>Add a review for {{mname}}</h3>
   <form method="POST" action="/add_review">
