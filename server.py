@@ -257,10 +257,10 @@ def results():
 
   for result in cursor:
     avg = result[4]
-    if avg == '':
-      avg = 'n/a'
+    if avg: 
+      avg = '{0:.2f}'.format(avg) + ' / 10'
     else: 
-      avg = '{0:.2f}'.format(avg) + " / 10"
+      avg = 'n/a'
     results.append((result[0], result[1], result[2], result[3], avg))
 
   cursor.close()
