@@ -142,7 +142,7 @@ def reviews():
   mname = cursor.fetchone()['menu_name']
   cursor.close()
   
-  cursor = g.conn.execute("SELECT restaurant_id, restaurant_name FROM restaurants as r, served_at as s where s.menu_item_id=%s and s.restaurant_id=r.restaurant_id", mid)
+  cursor = g.conn.execute("SELECT r.restaurant_id, r.restaurant_name FROM restaurants as r, served_at as s where s.menu_item_id=%s and s.restaurant_id=r.restaurant_id", mid)
   if cursor.rowcount == 0:
     cursor.close()
     return redirect('/')
