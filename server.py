@@ -229,25 +229,26 @@ def results():
   if not 'inputZip' in request.args or not 'inputCuisine' in request.args:
     return redirect('/')
 
+  results = []
   zipcode = request.args['inputZip']
   cuisine = request.args['inputCuisine']
 
   cursor = g.conn.execute(
     """
     SELECT rests.menu_item_id, rests.menu_name, rests.restaurant_id, rests.restaurant_name, avg(r.rating) AS avg_rating
-      FROM (reviews INNER JOIN rate ON reviews.review_id = rate.review_id) AS r RIGHT JOIN (
-        SELECT n.menu_item_id, n.menu_name, res.restaurant_name, res.restaurant_id
-        FROM served_at AS s, restaurants AS res, located_at AS loc, address AS a, (
-          SELECT m.menu_item_id, m.menu_name 
-          FROM menu_items AS m, belongs_to AS b 
-          WHERE b.cuisine_name = %s AND b.menu_item_id = m.menu_item_id
-        ) AS n 
-        WHERE s.restaurant_id = res.restaurant_id AND res.restaurant_id = loc.address_id AND 
-        loc.address_id = a.address_id AND a.zipcode = %s AND s.menu_item_id = n.menu_item_id
-      ) AS rests
-      ON r.menu_item_id = rests.menu_item_id 
-      GROUP BY rests.menu_name, rests.restaurant_name, rests.restaurant_id, rests.menu_item_id
-      ORDER BY avg_rating DESC;
+    FROM (reviews INNER JOIN rate ON reviews.review_id = rate.review_id) AS r RIGHT JOIN (
+      SELECT n.menu_item_id, n.menu_name, res.restaurant_name, res.restaurant_id
+      FROM served_at AS s, restaurants AS res, located_at AS loc, address AS a, (
+        SELECT m.menu_item_id, m.menu_name 
+        FROM menu_items AS m, belongs_to AS b 
+        WHERE b.cuisine_name = %s AND b.menu_item_id = m.menu_item_id
+      ) AS n 
+      WHERE s.restaurant_id = res.restaurant_id AND res.restaurant_id = loc.address_id AND 
+      loc.address_id = a.address_id AND a.zipcode = %s AND s.menu_item_id = n.menu_item_id
+    ) AS rests
+    ON r.menu_item_id = rests.menu_item_id 
+    GROUP BY rests.menu_name, rests.restaurant_name, rests.restaurant_id, rests.menu_item_id
+    ORDER BY avg_rating DESC;
     """, cuisine, zipcode)
 
   if cursor.rowcount == 0:
