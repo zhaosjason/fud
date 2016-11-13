@@ -294,11 +294,11 @@ def login():
   message2 = ""
   if 'm' in request.args:
     code = request.args['m']
-    if code == 0:
+    if code == '0':
       message1 = "Incorrect password. Try again."
-    elif code == 1:
+    elif code == '1':
       message1 = "Email not found. Please create account first."  
-    elif code == 2:
+    elif code == '2':
       message2 = "Email already in use. Please log in."
   context = dict(em1 = message1, em2 = message2)
   print "message 1 is: " + message1
