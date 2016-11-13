@@ -150,8 +150,10 @@ def reviews():
   num_ratings = 0
   if cursor.rowcount:
     res = cursor.fetchone()
-    avg_rating = '{0:.2f}'.format(res[0]) + ' / 10'
     num_ratings = res[1]
+    avg_rating = 'n/a'
+    if num_ratings:
+      avg_rating = '{0:.2f}'.format(res[0]) + ' / 10'  
   cursor.close()
   context = dict(data = names, mname = mname, mid = mid, avg_rating = avg_rating, num_ratings = num_ratings)
   return render_template('reviews.html', **context)
