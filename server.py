@@ -297,7 +297,9 @@ def login():
       message1 = "Email not found. Please create account first."  
     elif code == 2:
       message2 = "Email already in use. Please log in."
-  context = dict(data = [message1, message2])
+  context = dict(em1 = message1, em2 = message2)
+  print "message 1 is: " + message1
+  print "message 2 is: " + message2
   return render_template("login.html", **context)
 
 
