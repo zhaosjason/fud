@@ -203,7 +203,7 @@ def search():
 
   cursor.close()
 
-  context = dict(data = cuisines)
+  context = dict(data = sorted(cuisines))
   return render_template('search.html', **context)
 
 
