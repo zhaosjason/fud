@@ -7,6 +7,10 @@
     table, th, td {
       border: 1px solid black;
     }
+    #comment {
+      width: 300px;
+      height: 120px;
+    }
   </style>
 
 
@@ -34,9 +38,10 @@
 
   <h3>Add a review for {{mname}}</h3>
   <form method="POST" action="/add_review">
-    <p>
-      <input placeholder="Review" type="text" name="review" required>  
-    </p>
+    <div>
+      <textarea placeholder="Enter review here..." name="comment" id="comment"></textarea>
+    </div>
+    <p>Rating (0-10): <input type="number" name="rating" min="0" max="10" required></p>
     <p><input type="submit" value="Add Review"></p>
   </form>
 </body>

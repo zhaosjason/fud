@@ -180,6 +180,22 @@ def user():
   context = dict(data = names, uname = uname)
   return render_template('user.html', **context)
 
+@app.route('/add_review', methods=['POST'])
+def add_review():
+  comment = request.form['comment']
+  rating = request.form['rating']
+  print comment
+  print rating
+  # first_name = request.form['first_name']
+  # last_name = request.form['last_name']
+  # dob = request.form['dob']
+  # cursor = g.conn.execute("SELECT * FROM users WHERE users.email=%s", email)
+  # if cursor.rowcount:
+  #   return redirect('/login?m=2')
+  # g.conn.execute('INSERT INTO users VALUES (%s, %s, %s, %s, DATE%s)', email, first_name, last_name, password, dob);
+  # session['user'] = email
+  return redirect('/')
+
 @app.route('/noresults')
 @login_required
 def noresults():
@@ -215,22 +231,17 @@ def results():
 
   zipcode = request.args['inputZip']
   cuisine = request.args['inputCuisine']
-  results = [cuisine, zipcode]
 
   cursor = g.conn.execute("SELECT m.menu_item_id, m.menu_name, r.restaurant_id, r.restaurant_name, avg(p.rating) as avg from menu_items as m, restaurants as r, served_at as s, located_at as l, address as a, reviews as p, rate as q, belongs_to as b where a.zipcode=%s and b.cuisine_name=%s and b.menu_item_id=m.menu_item_id and a.address_id=l.address_id and l.restaurant_id=r.restaurant_id and r.restaurant_id=s.restaurant_id and s.menu_item_id=m.menu_item_id and m.menu_item_id=q.menu_item_id and q.review_id=p.review_id group by m.menu_item_id, m.menu_name, r.restaurant_id, r.restaurant_name order by avg DESC", cuisine, zipcode)
 
-  if cursor.rowcount == 0:
-    cursor.close()
-    return redirect('/noresults')
-
   for result in cursor:
-    temp = [result[0], result[1], result[2], result[3], result[4]]
-    temp[2] = '{0:.2f}'.format(temp[2]) + ' / 10'
-    results.append(temp)
-
+    avg = '{0:.2f}'.format(result[4]) + ' / 10'
+    results.append((result[0], result[1], result[2], result[3], avg))
   cursor.close()
 
-  context = dict(data = results)
+
+
+  context = dict(data = results, cuisine = cuisine, zipcode = zipcode)
   return render_template('results.html', **context)
 
 @app.route('/login_user', methods=['POST'])
