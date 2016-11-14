@@ -267,7 +267,7 @@ def results():
 
   cursor = g.conn.execute(
     """
-    SELECT rests.menu_item_id, rests.menu_name, rests.restaurant_id, rests.restaurant_name, avg(r.rating) AS avg_rating
+    SELECT rests.menu_item_id, rests.menu_name, rests.restaurant_id, rests.restaurant_name, avg(r.rating) AS avg_rating, count(r.rating) AS cnt
     FROM (reviews INNER JOIN rate ON reviews.review_id = rate.review_id) AS r RIGHT JOIN (
       SELECT n.menu_item_id, n.menu_name, res.restaurant_name, res.restaurant_id
       FROM served_at AS s, restaurants AS res, located_at AS loc, address AS a, (
@@ -293,7 +293,7 @@ def results():
       avg = '{0:.2f}'.format(avg) + ' / 10'
     else: 
       avg = 'n/a'
-    results.append((result[0], result[1], result[2], result[3], avg))
+    results.append((result[0], result[1], result[2], result[3], avg, result[5]))
 
   cursor.close()
 

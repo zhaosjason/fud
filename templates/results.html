@@ -18,12 +18,14 @@
 					<td>Food</td>
 					<td>Restaurant</td>
 					<td>Avg Rating</td>
+					<td>Number of Ratings</td>
 				</tr>
 				{% for n in data %}
 					<tr>
 						<td><a href="/reviews?mid={{n[0]}}">{{n[1]}}</a></td>
 						<td><a href="/menu?rid={{n[2]}}">{{n[3]}}</a></td>
 						<td>{{n[4]}}</td>
+						<td>{{n[5]}}</td>
 					</tr>
 				{% endfor %}
 			</table>
