@@ -22,5 +22,5 @@ fries (naturally).
 Fud is a web application (link below) that utilizes Flask and related tools 
 for web dev and postgres as its DBMS.
 
-http://fud.jszhao.com
+http://fud.jszhao.com (defunct)
 
